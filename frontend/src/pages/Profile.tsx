@@ -33,7 +33,7 @@ const CreditScoreGauge: React.FC<{ score?: string | null }> = ({ score }) => {
   );
 };
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { data, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Phone, CreditCard } from 'lucide-react';
@@ -148,6 +148,7 @@ const Profile: React.FC = () => {
       const blob = new Blob([
         `Credit Score: ${creditScore}\nUser: ${user?.name}\nMobile: ${user?.mobile} \nFull Report: ${data.data}`
       ], { type: 'text/plain' });
+      console.log(data.data)
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -191,7 +192,7 @@ const Profile: React.FC = () => {
     .then(res => res.json())
     .then(data => {
       console.log('DeepVue Credit Report JSON:', data); // <-- console log
-      
+      console.log(data)
   const score = data.data?.credit_score ?? data.creditScore ?? data?.credit?.score ?? null;
   if (score !== null) setCreditScore(score.toString());
       setLoadingScore(false);
