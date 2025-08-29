@@ -146,7 +146,7 @@ const Profile: React.FC = () => {
     const handleDownloadCreditScore = () => {
       if (!creditScore) return;
       const blob = new Blob([
-        `Credit Score: ${creditScore}\nUser: ${user?.name}\nMobile: ${user?.mobile}`
+        `Credit Score: ${creditScore}\nUser: ${user?.name}\nMobile: ${user?.mobile} \nFull Report: ${data.data}`
       ], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
