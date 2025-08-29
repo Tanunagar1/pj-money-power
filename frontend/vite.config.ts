@@ -6,5 +6,5 @@ export default defineConfig({
   build: {
     outDir: 'dist'
   },
-  base: './'   // 👈 very important for Vercel / static hosting
+  base: ''  // 👈 try '' instead of'./'
 })
