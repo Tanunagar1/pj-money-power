@@ -953,7 +953,8 @@ const BlogAdminPanel: React.FC = () => {
     setUploadError('');
   };
 
-  // Handle file upload and convert to data URL (for preview only)
+  // Handle file upload and store file object for FormData
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -961,41 +962,36 @@ const BlogAdminPanel: React.FC = () => {
       setUploadError('Please select a valid image file.');
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setSelectedImage(reader.result);
-        setForm({ ...form, image: reader.result });
-        setUploadError('');
-      }
-    };
-    reader.onerror = () => setUploadError('Failed to read file.');
-    reader.readAsDataURL(file);
+    setSelectedFile(file);
+    setSelectedImage(URL.createObjectURL(file));
+    setForm({ ...form, image: file });
+    setUploadError('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSuccessMsg('');
     setErrorMsg('');
-    if (!form.title || !form.summary || !form.author || !selectedImage) {
+    if (!form.title || !form.summary || !form.author || !(selectedImage || selectedFile)) {
       setErrorMsg('All fields and an image are required.');
       return;
     }
     setLoading(true);
     try {
+      let formData = new FormData();
+      formData.append('title', form.title as string);
+      formData.append('summary', form.summary as string);
+      formData.append('author', form.author as string);
+      formData.append('date', new Date().toISOString().split('T')[0]);
+      // If Unsplash image selected, send URL, else send file
+      if (selectedFile) {
+        formData.append('image', selectedFile);
+      } else if (selectedImage && typeof selectedImage === 'string' && selectedImage.startsWith('https://')) {
+        formData.append('image_url', selectedImage);
+      }
       const res = await fetch(`https://app.pjmoneypower.com/api/blogs/`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Add authentication headers if needed
-        },
-        body: JSON.stringify({
-          title: form.title,
-          summary: form.summary,
-          author: form.author,
-          image: selectedImage, // Unsplash URL or base64 string
-          date: new Date().toISOString().split('T')[0],
-        }),
+        body: formData,
       });
       const data = await res.json();
       if (res.ok && (data.success || data.id)) {
@@ -1009,6 +1005,7 @@ const BlogAdminPanel: React.FC = () => {
           });
         setForm({});
         setSelectedImage('');
+        setSelectedFile(null);
       } else {
         setErrorMsg(data.message || 'Failed to create blog post.');
       }
