@@ -26,14 +26,17 @@ const CreditScoreGauge: React.FC<{ score?: string | null }> = ({ score }) => {
           style={{ transition: 'stroke-dashoffset 1s' }}
         />
         {/* Score text */}
-        <text x="110" y="80" textAnchor="middle" fontSize="32" fontWeight="bold" fill={color}>{score ?? 'N/A'}</text>
+        <text x="110" y="80" textAnchor="middle" fontSize="32" fontWeight="bold" fill={color}>
+          {score ?? 'N/A'}
+        </text>
         <text x="110" y="105" textAnchor="middle" fontSize="16" fill="#374151">Credit Score</text>
       </svg>
     </div>
   );
 };
+
 import React from 'react';
-import { data, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Phone, CreditCard } from 'lucide-react';
@@ -111,13 +114,15 @@ const Stepper: React.FC<StepperProps> = ({ userMobile }) => {
       <div className="flex items-center justify-between">
         {steps.map((step, idx) => (
           <React.Fragment key={step.key}>
-            <div className={`flex flex-col items-center`}>
+            <div className="flex flex-col items-center">
               <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mb-1 ${getStepClass(step.key)}`}>
                 {idx + 1}
               </div>
               <span className="text-xs text-center w-20">{step.label}</span>
             </div>
-            {idx < steps.length - 1 && <div className={`flex-1 h-1 mx-1 ${getStepClass(steps[idx + 1].key)}`}></div>}
+            {idx < steps.length - 1 && (
+              <div className={`flex-1 h-1 mx-1 ${getStepClass(steps[idx + 1].key)}`}></div>
+            )}
           </React.Fragment>
         ))}
       </div>
@@ -135,29 +140,21 @@ const Profile: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
 
-    const navigate = (window as any).navigate || null;
-    // If using react-router-dom v6, use: import { useNavigate } from 'react-router-dom'; const navigate = useNavigate();
+  const navigate = (window as any).navigate || null;
   const [creditScore, setCreditScore] = React.useState<string | null>(null);
   const [loadingScore, setLoadingScore] = React.useState(true);
   const [transactionId, setTransactionId] = React.useState<string | null>(null);
   const [walletError, setWalletError] = React.useState<string | null>(null);
+  const [pdfUrl, setPdfUrl] = React.useState<string | null>(null); // <-- Added
 
-    // Download credit score as text file
-    const handleDownloadCreditScore = () => {
-      if (!creditScore) return;
-      const blob = new Blob([
-        `Credit Score: ${creditScore}\nUser: ${user?.name}\nMobile: ${user?.mobile} \nFull Report: ${data.data}`
-      ], { type: 'text/plain' });
-      console.log(data.data)
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'credit_score.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    };
+  // Download credit score as PDF (from API)
+  const handleDownloadCreditScore = () => {
+    if (pdfUrl) {
+      window.open(pdfUrl, "_blank"); // open PDF in new tab
+    } else {
+      alert("No PDF report available.");
+    }
+  };
 
   // Get transaction_id from URL
   React.useEffect(() => {
@@ -171,44 +168,43 @@ const Profile: React.FC = () => {
 
   // Fetch DeepVue Credit Report
   React.useEffect(() => {
-  if (!transactionId) return;
+    if (!transactionId) return;
 
-  const cToken = localStorage.getItem('deepvue_c_token');
-  if (!cToken) {
-    console.warn('No DeepVue c_token found in localStorage');
-    setWalletError('Missing authentication token');
-    setLoadingScore(false);
-    return;
-  }
-
-  const apiUrl = `https://production.deepvue.tech/v2/financial-services/credit-bureau/credit-report/sdk/report?transaction_id=${transactionId}`;
-  const headers = {
-    'Authorization': `Bearer ${cToken}`,
-    'x-api-key': 'dc05a0787a244d6486dde44aafc906de',
-    'Content-Type': 'application/json',
-  };
-
-  fetch(apiUrl, { method: 'GET', headers })
-    .then(res => res.json())
-    .then(data => {
-      console.log('DeepVue Credit Report JSON:', data); // <-- console log
-      console.log(data)
-  const score = data.data?.credit_score ?? data.creditScore ?? data?.credit?.score ?? null;
-  if (score !== null) setCreditScore(score.toString());
+    const cToken = localStorage.getItem('deepvue_c_token');
+    if (!cToken) {
+      console.warn('No DeepVue c_token found in localStorage');
+      setWalletError('Missing authentication token');
       setLoadingScore(false);
-    })
-    .catch(err => {
-      console.error('Error fetching credit report from DeepVue:', err);
-      setWalletError('Failed to fetch credit report');
-      setLoadingScore(false);
-    });
-}, [transactionId]);
+      return;
+    }
 
+    const apiUrl = `https://production.deepvue.tech/v2/financial-services/credit-bureau/credit-report/sdk/report?transaction_id=${transactionId}`;
+    const headers = {
+      'Authorization': `Bearer ${cToken}`,
+      'x-api-key': 'dc05a0787a244d6486dde44aafc906de',
+      'Content-Type': 'application/json',
+    };
+
+    fetch(apiUrl, { method: 'GET', headers })
+      .then(res => res.json())
+      .then(data => {
+        console.log('DeepVue Credit Report JSON:', data);
+        setPdfUrl(data?.data?.pdf_url || null); // save PDF url
+        const score = data.data?.credit_score ?? data.creditScore ?? data?.credit?.score ?? null;
+        if (score !== null) setCreditScore(score.toString());
+        setLoadingScore(false);
+      })
+      .catch(err => {
+        console.error('Error fetching credit report from DeepVue:', err);
+        setWalletError('Failed to fetch credit report');
+        setLoadingScore(false);
+      });
+  }, [transactionId]);
 
   // Fallback: Local API credit score
   React.useEffect(() => {
     if (!user?.mobile) return;
-    fetch(`https://app.pjmoneypower.com/api/credit/list/`, {
+    fetch("https://app.pjmoneypower.com/api/credit/list/", {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
@@ -286,7 +282,6 @@ const Profile: React.FC = () => {
 
             {/* Stepper */}
             {user.mobile && <div className="mt-10"><Stepper userMobile={user.mobile} /></div>}
-           
           </motion.div>
 
           {/* Quick Actions */}
@@ -305,17 +300,17 @@ const Profile: React.FC = () => {
                     <span className="text-lg font-bold text-blue-900">
                       {creditScore ? `Score: ${creditScore}` : 'No score available'}
                     </span>
-                      {creditScore && (
-                        <button
-                          className="mt-2 px-4 py-1 rounded bg-green-600 text-white text-sm font-semibold hover:bg-green-700"
-                          onClick={handleDownloadCreditScore}
-                        >
-                          Download Credit Score
-                        </button>
-                      )}
+                    {creditScore && (
+                      <button
+                        className="mt-2 px-4 py-1 rounded bg-green-600 text-white text-sm font-semibold hover:bg-green-700"
+                        onClick={handleDownloadCreditScore}
+                      >
+                        Download Credit Score
+                      </button>
+                    )}
                   </div>
                 </div>
-                
+
                 {/* Navigation for credit score checker */}
                 <button
                   className="mt-2 px-6 py-2 rounded-lg bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition-colors"
