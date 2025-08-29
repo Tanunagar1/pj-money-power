@@ -163,9 +163,9 @@ AUTH_USER_MODEL = 'pj_api.CustomUser'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Allow both local dev and production frontend
 CORS_ALLOWED_ORIGINS = [
-    "localhost:5173",
-    "localhost:5174",
-    "www.pjmoneypower.com",
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://www.pjmoneypower.com",
 ]
 # Allow credentials
 CORS_ALLOW_CREDENTIALS = True
