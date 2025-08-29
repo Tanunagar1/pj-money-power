@@ -6,5 +6,5 @@ export default defineConfig({
   build: {
     outDir: 'dist'
   },
-  base: ''  // 👈 try '' instead of'./'
+  base: './'   // 👈 ensures assets load properly
 })
