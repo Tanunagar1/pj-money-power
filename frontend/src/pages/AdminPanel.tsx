@@ -847,7 +847,7 @@ const LoanEligibilityTable: React.FC = () => {
 
 
   useEffect(() => {
-  fetch(`https://www.pjmoneypower.com/api/loan-eligibility/`, {
+  fetch(`https://app.pjmoneypower.com/api/loan-eligibility/`, {
       method: 'GET',
       headers: { 
         'Content-Type': 'application/json',

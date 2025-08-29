@@ -45,7 +45,7 @@ const LoanEligibilityCalculator: React.FC<LoanEligibilityCalculatorProps> = ({ o
   const handleEligibilitySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch(`https://www.pjmoneypower.com/api/loan-eligibility/`, {
+      const response = await fetch(`https://app.pjmoneypower.com/api/loan-eligibility/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

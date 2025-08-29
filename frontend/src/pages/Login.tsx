@@ -16,7 +16,7 @@ const Login: React.FC = () => {
 
   // Send OTP using /register/ endpoint
   const sendOtp = async (mobile: string, name: string) => {
-  const response = await fetch(`https://www.pjmoneypower.com/api/register/`, {
+  const response = await fetch(`https://app.pjmoneypower.com/api/register/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone_number: mobile, name }),
@@ -27,7 +27,7 @@ const Login: React.FC = () => {
 
   // Verify OTP using /verify/ endpoint
   const verifyOtp = async (mobile: string, otp: string, name: string) => {
-  const response = await fetch(`https://www.pjmoneypower.com/api/verify/`, {
+  const response = await fetch(`https://app.pjmoneypower.com/api/verify/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone_number: mobile, otp, name }),
@@ -85,7 +85,7 @@ const Login: React.FC = () => {
     setIsLoading(true);
     setError('');
     try {
-  const response = await fetch(`https://www.pjmoneypower.com/api/register/`, {
+  const response = await fetch(`https://app.pjmoneypower.com/api/register/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ phone_number: trimmed, name: name.trim() }),
