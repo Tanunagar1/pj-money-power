@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+<script src="https://widget.msg91.com/v5/otp.js"></script>
+<div id="otp-box"></div>
+<script type="text/javascript">
+var configuration = {
+  widgetId: "3568776a6c43303433303232",
+  tokenAuth: "464519TkNUNqW8pEX68a41001P1",
+  identifier: "917904488183",   // mobile/email
+  success: (data) => {
+      console.log("success response", data);
+      // இங்க தான் JWT கிடைக்கும்
+      // உதாரணம்: data.token அல்லது data.accessToken
+  },
+  failure: (error) => {
+      console.log("failure", error);
+  }
+};
+</script>
+<script type="text/javascript" onload="initSendOTP(configuration)" src="https://verify.msg91.com/otp-provider.js"> </script>
+
+
+
+</body>
+</html>
