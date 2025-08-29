@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-gdatp8f&e@afr%f@tj(2!-du3!qx7c&)okk9aphh8!06in35)n'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     "app.pjmoneypower.com",
@@ -114,11 +114,6 @@ DATABASES = {
 #twillow    
 
 # settings.py
-
-TWILIO_ACCOUNT_SID = 'ACd093fedd5b84632ac81c6b3e8737b266'
-TWILIO_AUTH_TOKEN = 'd4a10fca021dfabef16ae8cda2fd371f'
-TWILIO_PHONE_NUMBER = '+13165359563'  # your Twilio number
-
 
 
 # Password validation
