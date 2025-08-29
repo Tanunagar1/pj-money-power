@@ -81,12 +81,7 @@ const SmartToolsSection: React.FC = () => {
                   <button
                     className="bg-blue-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
                     onClick={() => {
-                      const userStr = localStorage.getItem('user');
-                      if (userStr) {
-                        setActiveModal(tool.id);
-                      } else {
-                        navigate('/login');
-                      }
+                      setActiveModal(tool.id);
                     }}
                   >
                     Try Now

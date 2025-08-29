@@ -134,10 +134,29 @@ const Stepper: React.FC<StepperProps> = ({ userMobile }) => {
 const Profile: React.FC = () => {
   const location = useLocation();
   const { user } = useAuth();
+
+    const navigate = (window as any).navigate || null;
+    // If using react-router-dom v6, use: import { useNavigate } from 'react-router-dom'; const navigate = useNavigate();
   const [creditScore, setCreditScore] = React.useState<string | null>(null);
   const [loadingScore, setLoadingScore] = React.useState(true);
   const [transactionId, setTransactionId] = React.useState<string | null>(null);
   const [walletError, setWalletError] = React.useState<string | null>(null);
+
+    // Download credit score as text file
+    const handleDownloadCreditScore = () => {
+      if (!creditScore) return;
+      const blob = new Blob([
+        `Credit Score: ${creditScore}\nUser: ${user?.name}\nMobile: ${user?.mobile}`
+      ], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'credit_score.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
 
   // Get transaction_id from URL
   React.useEffect(() => {
@@ -285,10 +304,29 @@ const Profile: React.FC = () => {
                     <span className="text-lg font-bold text-blue-900">
                       {creditScore ? `Score: ${creditScore}` : 'No score available'}
                     </span>
+                      {creditScore && (
+                        <button
+                          className="mt-2 px-4 py-1 rounded bg-green-600 text-white text-sm font-semibold hover:bg-green-700"
+                          onClick={handleDownloadCreditScore}
+                        >
+                          Download Credit Score
+                        </button>
+                      )}
                   </div>
                 </div>
-                <button className="mt-4 px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition-colors">
-                  Check Credit Score Again
+                
+                {/* Navigation for credit score checker */}
+                <button
+                  className="mt-2 px-6 py-2 rounded-lg bg-purple-600 text-white font-semibold shadow hover:bg-purple-700 transition-colors"
+                  onClick={() => {
+                    if (typeof navigate === 'function') {
+                      navigate('/credit-score-checker');
+                    } else {
+                      window.location.href = '/credit-score-checker';
+                    }
+                  }}
+                >
+                  Go to Credit Score Checker
                 </button>
               </div>
             </div>
